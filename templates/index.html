@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>旅游行程规划</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+    <h1>旅游行程规划</h1>
+    <form method="post">
+        <label for="city">选择城市:</label>
+        <select name="city" id="city">
+            {% for city in cities %}
+            <option value="{{ city }}">{{ city }}</option>
+            {% endfor %}
+        </select>
+        <label for="days">出行天数:</label>
+        <input type="number" name="days" id="days" min="1" max="7" value="7">
+        <button type="submit">生成行程</button>
+    </form>
+</body>
+
+</html>

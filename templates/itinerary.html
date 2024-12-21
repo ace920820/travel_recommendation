@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ city }} 行程</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+</head>
+<body>
+    <h1>{{ city }} 行程</h1>
+    <div id="map" style="height: 400px;"></div>
+    <script>
+        var map = L.map('map').setView([45.759, 126.632], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+        }).addTo(map);
+
+        var latlngs = [];
+        var allAttractions = [];
+
+        {% for day, attractions in daily_plan %}
+            {% for attraction in attractions %}
+                var latlng = [{{ attraction.lat }}, {{ attraction.lon }}];
+                latlngs.push(latlng);
+                allAttractions.push("{{ attraction.name }}");
+
+                // 为每个景点添加标记
+                L.marker(latlng).addTo(map)
+                    .bindPopup("{{ attraction.name }}");
+            {% endfor %}
+        {% endfor %}
+
+        if (latlngs.length > 0) {
+            // 标记起点
+            L.marker(latlngs[0], {
+                icon: L.divIcon({className: 'start-icon', html: '<b>起</b>', iconSize: [25, 25]})
+            }).addTo(map).bindPopup("起点: " + allAttractions[0]);
+
+            // 标记终点
+            L.marker(latlngs[latlngs.length - 1], {
+                icon: L.divIcon({className: 'end-icon', html: '<b>终</b>', iconSize: [25, 25]})
+            }).addTo(map).bindPopup("终点: " + allAttractions[allAttractions.length - 1]);
+
+            // 绘制路线
+            L.polyline(latlngs, {color: 'blue'}).addTo(map);
+        }
+    </script>
+    <style>
+        .start-icon {
+            background-color: green;
+            color: white;
+            text-align: center;
+            border-radius: 50%;
+        }
+        .end-icon {
+            background-color: red;
+            color: white;
+            text-align: center;
+            border-radius: 50%;
+        }
+    </style>
+    <h2>每日行程</h2>
+    <ul>
+        {% for day, attractions in daily_plan %}
+        <li>第 {{ day }} 天:
+            <ul>
+                {% for attraction in attractions %}
+                <li>{{ attraction.name }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
